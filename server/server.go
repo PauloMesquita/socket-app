@@ -24,7 +24,7 @@ func main(){
 		registerUser: make(chan ConnectionName),
 		unregisterUser: make(chan net.Conn),
 		messages: make(chan ConnectionName),
-		webmotors: webmotors.NewWebMotos(),
+		userInterface: &webmotors.Ui{ClientStep: map[string]uint8{}, WebmotorsApp: webmotors.NewWebMotos()},
 	}
 	
 	go server.handleEvents() // Lidar com eventos que chegam pelos canais
@@ -72,7 +72,7 @@ type Server struct {
 	registerUser chan ConnectionName
 	unregisterUser chan net.Conn
 	messages chan ConnectionName
-	webmotors *webmotors.Webmotors
+	userInterface *webmotors.Ui
 }
 
 func (s *Server) receive(client net.Conn) {
@@ -98,7 +98,12 @@ func (s *Server) receive(client net.Conn) {
 func (s *Server) handleEvents() {
 	for cn := range s.messages {
 		s.registerUnregisteredUser(&cn)
-		fmt.Printf("%s\n", cn.name)
+		// Get response
+		if _, ok := s.clients[cn.connection]; ok {
+			responseMessage := s.userInterface.Receive(cn.name, s.clients[cn.connection])
+			cn.connection.Write([]byte(responseMessage))
+		}
+
 	}
 }
 
