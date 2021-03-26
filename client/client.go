@@ -49,13 +49,13 @@ func receiveMessage(server net.Conn) {
 		if messageSize == 0 {
 			continue
 		}
-		fmt.Println(string(message[:messageSize]))
+		fmt.Print(string(message[:messageSize]))
 	}
 }
 
 func getSocket() (string, error) {
 	if len(os.Args) == 1 {
-		return "", errors.New("É necessário enviar o socket")
+		return "", errors.New("é necessário enviar o socket")
 	}
 	return os.Args[1], nil
 }
